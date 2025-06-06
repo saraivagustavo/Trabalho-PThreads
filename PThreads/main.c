@@ -3,39 +3,53 @@
 #include <time.h> //usar rand() pros números aleatórios e 
 #include <math.h> //para usar sqrt e ver se é primo
 
-//VARIÁVEIS GLOBAIS
+
+// *******************************************************
+// **************** VARIÁVEIS GLOBAIS ********************
+// *******************************************************
 // Definições de tamanho da matriz
 #define MATRIZ_LINHAS 10000 //número de linhas
 #define MATRIZ_COLUNAS 10000 //número de colunas
 int** matriz; //ponteiro para ponteiro, ou seja, matriz de ponteiros, que vai apontar pras linhas e colunas da matriz
 long contadorPrimos = 0; //autoexplicativo
 
+// *******************************************************
+// ******************* PROTÓTIPOS ************************
+// *******************************************************
+//(jeito que a IDE pede pra evitar os warnings)
 int ehPrimo(int n);
 void gerarMatriz(int l, int c);
 void freeMatriz(int l);
 void buscaSerial(int l, int c);
-
+void buscaParalela(int l, int c); 
+// *******************************************************
+// ********************** MAIN ***************************
+// *******************************************************
 int main() {
     int linhas = MATRIZ_LINHAS;
     int colunas = MATRIZ_COLUNAS;
 
     printf("Iniciando a geracao da matriz de %dx%d...\n", linhas, colunas);
     gerarMatriz(linhas, colunas);
-	buscaSerial(linhas, colunas); //chama a função que vai percorrer a matriz e ver se os números são primos
+	buscaSerial(linhas, colunas); 
+	buscaParalela(linhas, colunas);
     freeMatriz(linhas);
     printf("Programa finalizado. beijos!\n");
 
     return 0;
 }
 
+
+// *******************************************************
+// **************** FUNÇÃO GERAMATRIZ ********************
+// *******************************************************
 void gerarMatriz(int l, int c) {
-    matriz = (int**)malloc(l * sizeof(int*)); //aloca memória pras linhas
+    matriz = (int**)malloc(l * sizeof(int*)); //aloca memória pras linhas do jeito da apostila
     if (matriz == NULL) {
         printf("Erro na alocacao de memoria pras linhas\n");
     }
-
     for (int i = 0; i < l; i++) {
-		matriz[i] = (int*)malloc(c * sizeof(int)); //aloca memória pras colunas
+		matriz[i] = (int*)malloc(c * sizeof(int)); //aloca memória pras colunas 
 		if (matriz[i] == NULL) { //controlar se a alocação falhou ou não
             printf("Erro na alocacao de memoria pras colunas\n");
             for (int j = 0; j < i; j++) {
@@ -50,6 +64,10 @@ void gerarMatriz(int l, int c) {
     printf("Matriz de %dx%d gerada e preenchida com numero aleatorio com sucesso.\n", l, c); //verificação
 }
 
+
+// *******************************************************
+// **************** FUNÇÃO FREEMATRIZ ********************
+// *******************************************************
 void freeMatriz(int l) { //copiei de ED
     if (matriz != NULL) {
         for (int i = 0; i < l; i++) {
@@ -63,7 +81,10 @@ void freeMatriz(int l) { //copiei de ED
     }
 }
 
-// Implementação da função ehPrimo
+
+// *******************************************************
+// ***************** FUNÇÃO EHPRIMO **********************
+// *******************************************************
 int ehPrimo(int n) {
     if (n <= 1) { // 0 e 1 não são primos!!!!!!
         return 0;
@@ -76,6 +97,10 @@ int ehPrimo(int n) {
 	return 1; //se NÃO achar nenhum divisor, ele é primo
 }
 
+
+// *******************************************************
+// ****************** BUSCA SERIAL ***********************
+// *******************************************************
 void buscaSerial(int l, int c) {
 	clock_t inicioSerial, fimSerial; //clock_t é da biblioteca, serve pra medir os ticks da cpu
     double tempoSerial;
@@ -99,3 +124,8 @@ void buscaSerial(int l, int c) {
 	tempoSerial = (double)(fimSerial - inicioSerial) / CLOCKS_PER_SEC; //o CLOCKS_PER_SEC pega o valor que o clock() retornou e converte pra segundos
     printf("Tempo de exeucao de forma serial: %f segundos\n", tempoSerial);
 }
+
+
+// *******************************************************
+// **************** BUSCA PARALELA ***********************
+// *******************************************************
