@@ -1,20 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h> //usar rand() pros n˙meros aleatÛrios e 
-#include <math.h> //para usar sqrt e ver se È primo
+#include <time.h> //usar rand() pros n√∫meros aleat√≥rios e 
+#include <math.h> //para usar sqrt e ver se √© primo
 
 
 // *******************************************************
-// **************** VARI¡VEIS GLOBAIS ********************
+// **************** VARI√ÅVEIS GLOBAIS ********************
 // *******************************************************
-// DefiniÁıes de tamanho da matriz
-#define MATRIZ_LINHAS 10000 //n˙mero de linhas
-#define MATRIZ_COLUNAS 10000 //n˙mero de colunas
+// Defini√ß√µes de tamanho da matriz
+#define MATRIZ_LINHAS 10000 //n√∫mero de linhas
+#define MATRIZ_COLUNAS 10000 //n√∫mero de colunas
 int** matriz; //ponteiro para ponteiro, ou seja, matriz de ponteiros, que vai apontar pras linhas e colunas da matriz
 long contadorPrimos = 0; //autoexplicativo
 
+
 // *******************************************************
-// ******************* PROT”TIPOS ************************
+// ******************* PROT√ìTIPOS ************************
 // *******************************************************
 //(jeito que a IDE pede pra evitar os warnings)
 int ehPrimo(int n);
@@ -22,6 +23,8 @@ void gerarMatriz(int l, int c);
 void freeMatriz(int l);
 void buscaSerial(int l, int c);
 void buscaParalela(int l, int c); 
+
+
 // *******************************************************
 // ********************** MAIN ***************************
 // *******************************************************
@@ -41,32 +44,32 @@ int main() {
 
 
 // *******************************************************
-// **************** FUN«√O GERAMATRIZ ********************
+// **************** FUN√á√ÉO GERAMATRIZ ********************
 // *******************************************************
 void gerarMatriz(int l, int c) {
-    matriz = (int**)malloc(l * sizeof(int*)); //aloca memÛria pras linhas do jeito da apostila
+    matriz = (int**)malloc(l * sizeof(int*)); //aloca mem√≥ria pras linhas do jeito da apostila
     if (matriz == NULL) {
         printf("Erro na alocacao de memoria pras linhas\n");
     }
     for (int i = 0; i < l; i++) {
-		matriz[i] = (int*)malloc(c * sizeof(int)); //aloca memÛria pras colunas 
-		if (matriz[i] == NULL) { //controlar se a alocaÁ„o falhou ou n„o
+		matriz[i] = (int*)malloc(c * sizeof(int)); //aloca mem√≥ria pras colunas 
+		if (matriz[i] == NULL) { //controlar se a aloca√ß√£o falhou ou n√£o
             printf("Erro na alocacao de memoria pras colunas\n");
             for (int j = 0; j < i; j++) {
-                free(matriz[j]); //se a alocaÁ„o pras colunas falhar, libera as linhas que tinham sido alocaadas antes
+                free(matriz[j]); //se a aloca√ß√£o pras colunas falhar, libera as linhas que tinham sido alocaadas antes
             }
             free(matriz); //libera tudo que tinha sido alocado
         }
         for (int j = 0; j < c; j++) {
-            matriz[i][j] = rand() % 32000; //preenche a matriz com n˙meros aleatÛrios atÈ 31999 igual no ava
+            matriz[i][j] = rand() % 32000; //preenche a matriz com n√∫meros aleat√≥rios at√© 31999 igual no ava
         }
     }
-    printf("Matriz de %dx%d gerada e preenchida com numero aleatorio com sucesso.\n", l, c); //verificaÁ„o
+    printf("Matriz de %dx%d gerada e preenchida com numero aleatorio com sucesso.\n", l, c); //verifica√ß√£o
 }
 
 
 // *******************************************************
-// **************** FUN«√O FREEMATRIZ ********************
+// **************** FUN√á√ÉO FREEMATRIZ ********************
 // *******************************************************
 void freeMatriz(int l) { //copiei de ED
     if (matriz != NULL) {
@@ -83,18 +86,18 @@ void freeMatriz(int l) { //copiei de ED
 
 
 // *******************************************************
-// ***************** FUN«√O EHPRIMO **********************
+// ***************** FUN√á√ÉO EHPRIMO **********************
 // *******************************************************
 int ehPrimo(int n) {
-    if (n <= 1) { // 0 e 1 n„o s„o primos!!!!!!
+    if (n <= 1) { // 0 e 1 n√£o s√£o primos!!!!!!
         return 0;
     }
-	for (int i = 2; i <= sqrt(n); i++) { //comeÁa do 2 e vai atÈ a raiz quadrada de n vendo se tem algum divisor
+	for (int i = 2; i <= sqrt(n); i++) { //come√ßa do 2 e vai at√© a raiz quadrada de n vendo se tem algum divisor
         if (n % i == 0) {
-            return 0; //se achar algum divisor, ele n„o È primo
+            return 0; //se achar algum divisor, ele n√£o √© primo
         }
     }
-	return 1; //se N√O achar nenhum divisor, ele È primo
+	return 1; //se N√ÉO achar nenhum divisor, ele √© primo
 }
 
 
@@ -102,25 +105,25 @@ int ehPrimo(int n) {
 // ****************** BUSCA SERIAL ***********************
 // *******************************************************
 void buscaSerial(int l, int c) {
-	clock_t inicioSerial, fimSerial; //clock_t È da biblioteca, serve pra medir os ticks da cpu
+	clock_t inicioSerial, fimSerial; //clock_t √© da biblioteca, serve pra medir os ticks da cpu
     double tempoSerial;
 
-    contadorPrimos = 0; //sÛ de garantia coloca 0 aqui
+    contadorPrimos = 0; //s√≥ de garantia coloca 0 aqui
 
-	inicioSerial = clock(); //o clock() funciona como um marcador, marcando o tempo de inÌcio da execuÁ„o do cÛdigo nessa parte
+	inicioSerial = clock(); //o clock() funciona como um marcador, marcando o tempo de in√≠cio da execu√ß√£o do c√≥digo nessa parte
  
     for (int i = 0; i < l; i++) {
         for (int j = 0; j < c; j++) {
-            if (ehPrimo(matriz[i][j])) { //chama a funÁ„o pra ver se È primo
+            if (ehPrimo(matriz[i][j])) { //chama a fun√ß√£o pra ver se √© primo
 				contadorPrimos++; //se for, acrescenta 
             }
         }
     }
 
-	fimSerial = clock(); //tem que marcar depois que terminou de percorrer a matriz, pra pegar o tempo total de execuÁ„o e depois calcular o tempo total 
+	fimSerial = clock(); //tem que marcar depois que terminou de percorrer a matriz, pra pegar o tempo total de execu√ß√£o e depois calcular o tempo total 
 	printf("Total de numeros primos encontrados: %ld\n", contadorPrimos); //imprime o total de primos encontrados na matriz
 
-	//c·lculo do tempo total de execuÁ„o
+	//c√°lculo do tempo total de execu√ß√£o
 	tempoSerial = (double)(fimSerial - inicioSerial) / CLOCKS_PER_SEC; //o CLOCKS_PER_SEC pega o valor que o clock() retornou e converte pra segundos
     printf("Tempo de exeucao de forma serial: %f segundos\n", tempoSerial);
 }
