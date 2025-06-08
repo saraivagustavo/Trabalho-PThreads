@@ -10,20 +10,24 @@
 #include <math.h>
 #include <pthread.h>
 
+/*GRUPO: GUSTAVO SARAIVA, PEDRO HENRIQUE ALBANI, TERTULIANO DOS SANTOS
+    trabalho PThreads - Sistemas Operacionais*/
 
 // *******************************************************
 // **************** VARIÁVEIS GLOBAIS ********************
 // *******************************************************
 int** matriz;
 long contadorPrimos = 0;
-#define MATRIZ_LINHAS 10000
-#define MATRIZ_COLUNAS 10000
+// Definições de tamanho da matriz
+#define MATRIZ_LINHAS 20000
+#define MATRIZ_COLUNAS 20000
 
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
-#define NUM_THREADS 6
-#define MACROBLOCO_LINHAS 100
-#define MACROBLOCO_COLUNAS 100
+// Definições de tamanho dos macroblocos e número de threads
+#define NUM_THREADS 12
+#define MACROBLOCO_LINHAS 1000
+#define MACROBLOCO_COLUNAS 1000
 
 
 // *******************************************************
@@ -66,21 +70,21 @@ int main() {
 // *******************************************************
 // **************** FUNÇÃO GERAMATRIZ ********************
 // *******************************************************
-void gerarMatriz(int l, int c) {
+void gerarMatriz(int l, int c) { //copiei de ED ajeitando pro jeito da apostila do Giraldeli
     matriz = (int**)malloc(l * sizeof(int*));
     if (matriz == NULL) {
         printf("Erro na alocacao de memoria pras linhas\n");
-        exit(EXIT_FAILURE); //!!!!!
+        exit(1);
     }
     for (int i = 0; i < l; i++) {
         matriz[i] = (int*)malloc(c * sizeof(int));
         if (matriz[i] == NULL) {
-            printf("Erro na alocacao de memoria pras colunas\n"); //!!!!!
+            printf("Erro na alocacao de memoria pras colunas\n");
             for (int j = 0; j < i; j++) {
                 free(matriz[j]);
             }
             free(matriz);
-            exit(EXIT_FAILURE); //!!!!!
+            exit(1);
         }
         for (int j = 0; j < c; j++) {
             matriz[i][j] = rand() % 32000;
@@ -93,7 +97,7 @@ void gerarMatriz(int l, int c) {
 // *******************************************************
 // **************** FUNÇÃO FREEMATRIZ ********************
 // *******************************************************
-void freeMatriz(int l) {
+void freeMatriz(int l) { //copiei de ED
     if (matriz != NULL) {
         for (int i = 0; i < l; i++) {
             if (matriz[i] != NULL) {
@@ -134,19 +138,19 @@ void buscaSerial(int l, int c) {
 
     inicioSerial = clock();
 
-    for (int i = 0; i < l; i++) {
-        for (int j = 0; j < c; j++) {
+	for (int i = 0; i < l; i++) { //loop para percorrer as linhas da matriz
+		for (int j = 0; j < c; j++) { //loop para percorrer as colunas da matriz
             if (ehPrimo(matriz[i][j])) {
-                contadorPrimos++;
+                contadorPrimos++; //incrementa se entrar no if
             }
         }
     }
 
     fimSerial = clock();
-    printf("Total de numeros primos encontrados (Serial): %ld\n", contadorPrimos);
+    printf("Total de numeros primos encontrados: %ld\n", contadorPrimos);
 
-    tempoSerial = (double)(fimSerial - inicioSerial) / CLOCKS_PER_SEC;
-    printf("Tempo de exeucao de forma serial: %.f segundos\n", tempoSerial);
+    tempoSerial = (double)(fimSerial - inicioSerial) / CLOCKS_PER_SEC; //o CLOCKS_PER_SEC pega o valor do clock() e transforma em  segundos
+    printf("Tempo de exeucao de forma serial: %.3f segundos\n", tempoSerial);
 }
 
 
@@ -154,7 +158,7 @@ void buscaSerial(int l, int c) {
 // **************** BUSCA PARALELA ***********************
 // *******************************************************
 void* percorrerCadaThread(void* arg) {
-    long primoCadaThread = 0;
+	long primoCadaThread = 0; //não pode usar o contadorPrimos aqui, porque cada thread vai ter que contar os primos que ela encontrou e depois somar no contador global (lá na região crítica embaixo)
 	int numMacroblocosLinha = (int)ceil((double)MATRIZ_LINHAS / MACROBLOCO_LINHAS); //garantir que o número de linhas seja um múltiplo de MACROBLOCO_LINHAS
     int numMacroblocosColuna = (int)ceil((double)MATRIZ_COLUNAS / MACROBLOCO_COLUNAS); //mesma coisa para as colunas
     int totalMacroblocos = numMacroblocosLinha * numMacroblocosColuna;
@@ -189,7 +193,7 @@ void* percorrerCadaThread(void* arg) {
         primoCadaThread = 0;
         for (int i = inicioLinha; i < fimLinha; i++) { //loop pra começar a percorrer o macrobloco atual
             for (int j = inicioColuna; j < fimColuna; j++) {
-                if (ehPrimo(matriz[i][j])) { //aqui que verifica se o número desse lugar do macrobloco é primo ou não
+                if (ehPrimo(matriz[i][j])) { //aqui que verifica se o número desse lugar de dentro do macrobloco é primo ou não
                     primoCadaThread++;
                 }
             }
@@ -197,7 +201,7 @@ void* percorrerCadaThread(void* arg) {
 
         //como vai incrementar o contador global de números primos, tem que travar também, região crítica!!!!
         pthread_mutex_lock(&mutexContador);
-        contadorPrimos += primoCadaThread;
+		contadorPrimos += primoCadaThread; //aqui que atualiza o contador global de números primos encontrados em todas as threads
         pthread_mutex_unlock(&mutexContador);
     }
     return NULL;
@@ -226,7 +230,8 @@ void buscaParalela(int l, int c) {
     }
 
     fimParalela = clock();
+    printf("Total de numeros primos encontrados: %ld\n", contadorPrimos);
 
     tempoParalela = (double)(fimParalela - inicioParalela) / CLOCKS_PER_SEC;
-    printf("Tempo de execucao de forma paralela: %f segundos\n", tempoParalela);
+    printf("Tempo de execucao de forma paralela: %.3f segundos\n", tempoParalela);
 }
