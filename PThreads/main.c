@@ -17,7 +17,7 @@
 // **************** VARIÁVEIS GLOBAIS ********************
 // *******************************************************
 int** matriz;
-long contadorPrimos = 0;
+double contadorPrimos = 0;
 // Definições de tamanho da matriz
 #define MATRIZ_LINHAS 20000 
 #define MATRIZ_COLUNAS 20000 
