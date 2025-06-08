@@ -19,15 +19,15 @@
 int** matriz;
 long contadorPrimos = 0;
 // Definições de tamanho da matriz
-#define MATRIZ_LINHAS 20000 //coloque o tamanho desejado
-#define MATRIZ_COLUNAS 20000 //coloque o tamanho desejado
+#define MATRIZ_LINHAS 20000 
+#define MATRIZ_COLUNAS 20000 
 
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
 // Definições de tamanho dos macroblocos e número de threads
-#define NUM_THREADS 6 //coloque o tamanho desejado
-#define MACROBLOCO_LINHAS 1 //coloque o tamanho desejado
-#define MACROBLOCO_COLUNAS 1 //coloque o tamanho desejado
+#define NUM_THREADS 6 
+#define MACROBLOCO_LINHAS 1 
+#define MACROBLOCO_COLUNAS 1 
 
 
 // *******************************************************
