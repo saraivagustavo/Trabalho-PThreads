@@ -19,15 +19,15 @@
 int** matriz;
 long contadorPrimos = 0;
 // Definições de tamanho da matriz
-#define MATRIZ_LINHAS 20000
-#define MATRIZ_COLUNAS 20000
+#define MATRIZ_LINHAS 20000 //coloque o tamanho desejado
+#define MATRIZ_COLUNAS 20000 //coloque o tamanho desejado
 
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
 // Definições de tamanho dos macroblocos e número de threads
-#define NUM_THREADS 12
-#define MACROBLOCO_LINHAS 1000
-#define MACROBLOCO_COLUNAS 1000
+#define NUM_THREADS 6 //coloque o tamanho desejado
+#define MACROBLOCO_LINHAS 1 //coloque o tamanho desejado
+#define MACROBLOCO_COLUNAS 1 //coloque o tamanho desejado
 
 
 // *******************************************************
@@ -39,6 +39,8 @@ void freeMatriz(int l);
 void buscaSerial(int l, int c);
 void buscaParalela(int l, int c);
 void* percorrerCadaThread(void* arg);
+void buscaParalelaSemMutex(int l, int c);
+void* percorrerCadaThreadSemMutex(void* arg); //!!!!!
 
 
 // *******************************************************
@@ -51,16 +53,27 @@ int main() {
     printf("Iniciando a geracao da matriz de %dx%d...\n", linhas, colunas);
     gerarMatriz(linhas, colunas);
 
-
+    //busca serial
+    printf("\n--- Teste busca serial ---\n");
     buscaSerial(linhas, colunas);
 
-    pthread_mutex_init(&mutexContador, NULL); //inicializa o semáforo
+    //busca paralela com mutex
+	printf("\nMACROBLOCOS: %dx%d", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+    printf("\n--- Teste paralela COM mutex ---\n");
+    pthread_mutex_init(&mutexContador, NULL);
     proximoMacrobloco = 0;
     contadorPrimos = 0;
     buscaParalela(linhas, colunas);
+    pthread_mutex_destroy(&mutexContador);
+
+	//busca paralela sem mutex pra ver o que acontece
+    printf("\nMACROBLOCOS: %dx%d", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+    printf("\n--- Teste paralelo SEM mutex ---\n");
+    proximoMacrobloco = 0;
+    contadorPrimos = 0;
+    buscaParalelaSemMutex(linhas, colunas);
 
     freeMatriz(linhas);
-	pthread_mutex_destroy(&mutexContador); //destrói o semáforo
     printf("Programa finalizado. beijos!\n");
 
     return 0;
@@ -165,7 +178,7 @@ void* percorrerCadaThread(void* arg) {
 
     while (1) {
         int idMacrobloco;
-
+		//tem que travar a região crítica pq o proximoMacrobloco compartilha entre as threads
         pthread_mutex_lock(&mutexContador);
         idMacrobloco = proximoMacrobloco;
         proximoMacrobloco++;
@@ -234,4 +247,79 @@ void buscaParalela(int l, int c) {
 
     tempoParalela = (double)(fimParalela - inicioParalela) / CLOCKS_PER_SEC;
     printf("Tempo de execucao de forma paralela: %.3f segundos\n", tempoParalela);
+}
+// *******************************************************
+// ************* BUSCA PARALELA >>SEM<< MUTEX ************
+// *******************************************************
+
+void* percorrerCadaThreadSemMutex(void* arg) {
+    long primoCadaThread = 0;
+    int numMacroblocosLinha = (int)ceil((double)MATRIZ_LINHAS / MACROBLOCO_LINHAS);
+    int numMacroblocosColuna = (int)ceil((double)MATRIZ_COLUNAS / MACROBLOCO_COLUNAS);
+    int totalMacroblocos = numMacroblocosLinha * numMacroblocosColuna;
+
+    while (1) {
+        int idMacrobloco;
+
+        idMacrobloco = proximoMacrobloco;
+        proximoMacrobloco++;
+
+        if (idMacrobloco >= totalMacroblocos) {
+            break;
+        }
+
+        int linhaMacrobloco = idMacrobloco / numMacroblocosColuna;
+        int colunaMacrobloco = idMacrobloco % numMacroblocosColuna;
+
+        int inicioLinha = linhaMacrobloco * MACROBLOCO_LINHAS; 
+        int fimLinha = inicioLinha + MACROBLOCO_LINHAS; 
+        if (fimLinha > MATRIZ_LINHAS) { 
+            fimLinha = MATRIZ_LINHAS; 
+        }
+
+        int inicioColuna = colunaMacrobloco * MACROBLOCO_COLUNAS; 
+        int fimColuna = inicioColuna + MACROBLOCO_COLUNAS; 
+        if (fimColuna > MATRIZ_COLUNAS) { 
+            fimColuna = MATRIZ_COLUNAS;
+        }
+
+        primoCadaThread = 0; 
+        for (int i = inicioLinha; i < fimLinha; i++) {
+            for (int j = inicioColuna; j < fimColuna; j++) {
+                if (ehPrimo(matriz[i][j])) { 
+                    primoCadaThread++; 
+                }
+            }
+        }
+        contadorPrimos += primoCadaThread;
+    }
+    return NULL; 
+}
+
+void buscaParalelaSemMutex(int l, int c) { 
+    clock_t inicioParalela, fimParalela; 
+    double tempoParalela; 
+    pthread_t threads[NUM_THREADS]; 
+
+    inicioParalela = clock(); 
+
+    for (int i = 0; i < NUM_THREADS; i++) { 
+        if (pthread_create(&threads[i], NULL, percorrerCadaThreadSemMutex, NULL) != 0) {
+            perror("Pthread_create falhou!");
+            exit(1); 
+        }
+    }
+
+    for (int i = 0; i < NUM_THREADS; i++) { 
+        if (pthread_join(threads[i], NULL) != 0) { 
+            perror("Pthread_join falhou!");
+            exit(1);
+        }
+    }
+
+    fimParalela = clock();
+    printf("Total de numeros primos encontrados: %ld (SEM MUTEX)\n", contadorPrimos);
+
+    tempoParalela = (double)(fimParalela - inicioParalela) / CLOCKS_PER_SEC;
+    printf("Tempo de execucao de forma paralela: %.3f segundos (SEM MUTEX)\n", tempoParalela);
 }
