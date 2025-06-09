@@ -17,17 +17,17 @@
 // **************** VARIÁVEIS GLOBAIS ********************
 // *******************************************************
 int** matriz;
-double contadorPrimos = 0;
+long contadorPrimos = 0;
 // Definições de tamanho da matriz
-#define MATRIZ_LINHAS 20000 
-#define MATRIZ_COLUNAS 20000 
+#define MATRIZ_LINHAS 20000
+#define MATRIZ_COLUNAS 20000
 
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
 // Definições de tamanho dos macroblocos e número de threads
-#define NUM_THREADS 6 
-#define MACROBLOCO_LINHAS 1 
-#define MACROBLOCO_COLUNAS 1 
+#define NUM_THREADS 20
+#define MACROBLOCO_LINHAS 20000
+#define MACROBLOCO_COLUNAS 20000
 
 
 // *******************************************************
@@ -39,8 +39,9 @@ void freeMatriz(int l);
 void buscaSerial(int l, int c);
 void buscaParalela(int l, int c);
 void* percorrerCadaThread(void* arg);
-void buscaParalelaSemMutex(int l, int c);
-void* percorrerCadaThreadSemMutex(void* arg); //!!!!!
+/*funções sem mutex para comparar com a com mutex, descomentar se quiser*/
+//void buscaParalelaSemMutex(int l, int c);
+//void* percorrerCadaThreadSemMutex(void* arg);
 
 
 // *******************************************************
@@ -59,6 +60,7 @@ int main() {
 
     //busca paralela com mutex
 	printf("\nMACROBLOCOS: %dx%d", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+	printf("\nNUMERO THREADS: %d", NUM_THREADS);
     printf("\n--- Teste paralela COM mutex ---\n");
     pthread_mutex_init(&mutexContador, NULL);
     proximoMacrobloco = 0;
@@ -66,12 +68,12 @@ int main() {
     buscaParalela(linhas, colunas);
     pthread_mutex_destroy(&mutexContador);
 
-	//busca paralela sem mutex pra ver o que acontece
-    printf("\nMACROBLOCOS: %dx%d", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+	//busca paralela sem mutex pra ver o que acontece,  descomentar se quiser
+    /*printf("\nMACROBLOCOS: %dx%d", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
     printf("\n--- Teste paralelo SEM mutex ---\n");
     proximoMacrobloco = 0;
     contadorPrimos = 0;
-    buscaParalelaSemMutex(linhas, colunas);
+    buscaParalelaSemMutex(linhas, colunas);*/
 
     freeMatriz(linhas);
     printf("Programa finalizado. beijos!\n");
@@ -131,7 +133,9 @@ int ehPrimo(int n) {
     if (n <= 1) {
         return 0;
     }
-    for (int i = 2; i <= sqrt(n); i++) {
+
+	int raizN = (int)sqrt(n);
+    for (int i = 2; i <= raizN; i++) {
         if (n % i == 0) {
             return 0;
         }
@@ -252,74 +256,76 @@ void buscaParalela(int l, int c) {
 // ************* BUSCA PARALELA >>SEM<< MUTEX ************
 // *******************************************************
 
-void* percorrerCadaThreadSemMutex(void* arg) {
-    long primoCadaThread = 0;
-    int numMacroblocosLinha = (int)ceil((double)MATRIZ_LINHAS / MACROBLOCO_LINHAS);
-    int numMacroblocosColuna = (int)ceil((double)MATRIZ_COLUNAS / MACROBLOCO_COLUNAS);
-    int totalMacroblocos = numMacroblocosLinha * numMacroblocosColuna;
+/*apenas a título de curiosidade de comparação dos resultados, descomentar se quiser*/
 
-    while (1) {
-        int idMacrobloco;
-
-        idMacrobloco = proximoMacrobloco;
-        proximoMacrobloco++;
-
-        if (idMacrobloco >= totalMacroblocos) {
-            break;
-        }
-
-        int linhaMacrobloco = idMacrobloco / numMacroblocosColuna;
-        int colunaMacrobloco = idMacrobloco % numMacroblocosColuna;
-
-        int inicioLinha = linhaMacrobloco * MACROBLOCO_LINHAS; 
-        int fimLinha = inicioLinha + MACROBLOCO_LINHAS; 
-        if (fimLinha > MATRIZ_LINHAS) { 
-            fimLinha = MATRIZ_LINHAS; 
-        }
-
-        int inicioColuna = colunaMacrobloco * MACROBLOCO_COLUNAS; 
-        int fimColuna = inicioColuna + MACROBLOCO_COLUNAS; 
-        if (fimColuna > MATRIZ_COLUNAS) { 
-            fimColuna = MATRIZ_COLUNAS;
-        }
-
-        primoCadaThread = 0; 
-        for (int i = inicioLinha; i < fimLinha; i++) {
-            for (int j = inicioColuna; j < fimColuna; j++) {
-                if (ehPrimo(matriz[i][j])) { 
-                    primoCadaThread++; 
-                }
-            }
-        }
-        contadorPrimos += primoCadaThread;
-    }
-    return NULL; 
-}
-
-void buscaParalelaSemMutex(int l, int c) { 
-    clock_t inicioParalela, fimParalela; 
-    double tempoParalela; 
-    pthread_t threads[NUM_THREADS]; 
-
-    inicioParalela = clock(); 
-
-    for (int i = 0; i < NUM_THREADS; i++) { 
-        if (pthread_create(&threads[i], NULL, percorrerCadaThreadSemMutex, NULL) != 0) {
-            perror("Pthread_create falhou!");
-            exit(1); 
-        }
-    }
-
-    for (int i = 0; i < NUM_THREADS; i++) { 
-        if (pthread_join(threads[i], NULL) != 0) { 
-            perror("Pthread_join falhou!");
-            exit(1);
-        }
-    }
-
-    fimParalela = clock();
-    printf("Total de numeros primos encontrados: %ld (SEM MUTEX)\n", contadorPrimos);
-
-    tempoParalela = (double)(fimParalela - inicioParalela) / CLOCKS_PER_SEC;
-    printf("Tempo de execucao de forma paralela: %.3f segundos (SEM MUTEX)\n", tempoParalela);
-}
+//void* percorrerCadaThreadSemMutex(void* arg) {
+//    long primoCadaThread = 0;
+//    int numMacroblocosLinha = (int)ceil((double)MATRIZ_LINHAS / MACROBLOCO_LINHAS);
+//    int numMacroblocosColuna = (int)ceil((double)MATRIZ_COLUNAS / MACROBLOCO_COLUNAS);
+//    int totalMacroblocos = numMacroblocosLinha * numMacroblocosColuna;
+//
+//    while (1) {
+//        int idMacrobloco;
+//
+//        idMacrobloco = proximoMacrobloco;
+//        proximoMacrobloco++;
+//
+//        if (idMacrobloco >= totalMacroblocos) {
+//            break;
+//        }
+//
+//        int linhaMacrobloco = idMacrobloco / numMacroblocosColuna;
+//        int colunaMacrobloco = idMacrobloco % numMacroblocosColuna;
+//
+//        int inicioLinha = linhaMacrobloco * MACROBLOCO_LINHAS; 
+//        int fimLinha = inicioLinha + MACROBLOCO_LINHAS; 
+//        if (fimLinha > MATRIZ_LINHAS) { 
+//            fimLinha = MATRIZ_LINHAS; 
+//        }
+//
+//        int inicioColuna = colunaMacrobloco * MACROBLOCO_COLUNAS; 
+//        int fimColuna = inicioColuna + MACROBLOCO_COLUNAS; 
+//        if (fimColuna > MATRIZ_COLUNAS) { 
+//            fimColuna = MATRIZ_COLUNAS;
+//        }
+//
+//        primoCadaThread = 0; 
+//        for (int i = inicioLinha; i < fimLinha; i++) {
+//            for (int j = inicioColuna; j < fimColuna; j++) {
+//                if (ehPrimo(matriz[i][j])) { 
+//                    primoCadaThread++; 
+//                }
+//            }
+//        }
+//        contadorPrimos += primoCadaThread;
+//    }
+//    return NULL; 
+//}
+//
+//void buscaParalelaSemMutex(int l, int c) { 
+//    clock_t inicioParalela, fimParalela; 
+//    double tempoParalela; 
+//    pthread_t threads[NUM_THREADS]; 
+//
+//    inicioParalela = clock(); 
+//
+//    for (int i = 0; i < NUM_THREADS; i++) { 
+//        if (pthread_create(&threads[i], NULL, percorrerCadaThreadSemMutex, NULL) != 0) {
+//            perror("Pthread_create falhou!");
+//            exit(1); 
+//        }
+//    }
+//
+//    for (int i = 0; i < NUM_THREADS; i++) { 
+//        if (pthread_join(threads[i], NULL) != 0) { 
+//            perror("Pthread_join falhou!");
+//            exit(1);
+//        }
+//    }
+//
+//    fimParalela = clock();
+//    printf("Total de numeros primos encontrados: %ld (SEM MUTEX)\n", contadorPrimos);
+//
+//    tempoParalela = (double)(fimParalela - inicioParalela) / CLOCKS_PER_SEC;
+//    printf("Tempo de execucao de forma paralela: %.3f segundos (SEM MUTEX)\n", tempoParalela);
+//}
