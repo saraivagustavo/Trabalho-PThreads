@@ -10,7 +10,7 @@ Este projeto tem como objetivo principal explorar os conceitos de programação 
 
 ## 🚀 Funcionalidades
 
-* **Geração de Matriz:** Criação dinâmica de uma matriz de grandes dimensões (`[MATRIZ_LINHAS]x[MATRIZ_COLUNAS]`) preenchida com números naturais aleatórios (0 a 31999).
+* **Geração de Matriz:** Criação dinâmica de uma matriz de grandes dimensões (`[20000]x[20000]`) preenchida com números naturais aleatórios (0 a 31999).
 * **Busca Serial de Primos:** Implementação de um algoritmo sequencial para identificar e contar números primos na matriz, servindo como tempo de referência.
 * **Busca Paralela de Primos (PThreads):** Utilização de múltiplas threads para processar a matriz em "macroblocos", distribuindo a carga de trabalho.
 * **Sincronização com Mutexes:** Proteção de variáveis globais compartilhadas (`contadorPrimos`, `proximoMacrobloco`) para garantir a integridade dos dados e a correção do resultado em ambiente concorrente.
@@ -51,19 +51,19 @@ Você pode ajustar as seguintes macros no arquivo `main.c` para testar diferente
 
 ## 📊 Análise de Desempenho (Baseado em Testes)
 
-Os testes foram conduzidos em [AMD Ryzen 7 5300X3D (8 Cores Físicos, 16 Threads Lógicas) e AMD Ryzen 5 5600 (6 Cores Físicos, 12 Threads Lógicas)], utilizando matrizes de até $30000 \times 30000$ elementos.
+Os testes foram conduzidos em [AMD Ryzen 7 5300X3D (8 Cores Físicos, 16 Threads Lógicas) e AMD Ryzen 5 5600 (6 Cores Físicos, 12 Threads Lógicas)], utilizando matrizes de até 30000 x 30000 elementos.
 
 ### Principais Observações:
 
 * **Aceleração pelo Paralelismo:** A busca paralela consistentemente superou a serial em matrizes grandes quando otimizada.
-    * Ex: Matriz $20000 \times 20000$: Serial: $15.776$s (Ryzen 7); Paralela ($1000 \times 1000$ macrobloco, 16 Core): $1.650$s.
+    * Ex: Matriz 20000 x 20000: Serial: 15.776s (Ryzen 7); Paralela (1000 x 1000 macrobloco, 16 Core): 1.650s.
 * **Impacto da Granularidade (Tamanho do Macrobloco):**
-    * **Macroblocos Pequenos (e.g., $1 \times 1$):** Causam *overhead* excessivo de sincronização, resultando em desempenho pior que o serial (ex: $68.616$s para $1 \times 1$ no Ryzen 7). A alta frequência de aquisição/liberação de mutexes (mesmo que ausentes no teste sem mutex) e a gestão de muitas pequenas tarefas anulam os ganhos.
-    * **Macroblocos Ótimos:** Uma "faixa ideal" (aprox. $1000 \times 1000$ a $5000 \times 5000$) proporcionou os melhores tempos, balanceando a divisão do trabalho com o *overhead* (ex: $1.650$s no Ryzen 7 para $1000 \times 1000$).
-    * **Macroblocos Grandes (ex: matriz inteira):** Reduzem o paralelismo efetivo, aproximando o tempo do serial (ex: $15.815$s para $20000 \times 20000$ no Ryzen 7), pois o trabalho não é distribuído de forma eficiente entre as threads.
+    * **Macroblocos Pequenos (ex: 1 x 1):** Causam *overhead* excessivo de sincronização, resultando em desempenho pior que o serial (ex: 68.616s para 1 x 1 no Ryzen 7). A alta frequência de aquisição/liberação de mutexes (mesmo que ausentes no teste sem mutex) e a gestão de muitas pequenas tarefas anulam os ganhos.
+    * **Macroblocos Ótimos:** Uma "faixa ideal" (aprox. 1000 x 1000 a 5000 x 5000) proporcionou os melhores tempos, balanceando a divisão do trabalho com o *overhead* (ex: 1.650s no Ryzen 7 para 1000 x 1000).
+    * **Macroblocos Grandes (ex: matriz inteira):** Reduzem o paralelismo efetivo, aproximando o tempo do serial (ex: 15.81$s para 20000 x 20000 no Ryzen 7), pois o trabalho não é distribuído de forma eficiente entre as threads.
 * **Influência do Número de Threads/Cores:**
     * O desempenho melhora com o aumento do número de threads até o limite de núcleos físicos/lógicos, conforme a Lei de Amdahl.
-    * Ex: Matriz $20000 \times 20000$ (Ryzen 7, $1000 \times 1000$ macrobloco): de $8.003$s (2 Core) para $1.650$s (16 Core).
+    * Ex: Matriz 20000 x 20000 (Ryzen 7, 1000 x 1000 macrobloco): de 8.003s (2 Core) para 1.650s (16 Core).
     * O uso de threads lógicas (Hyper-Threading) pode oferecer ganhos, mas com menor eficiência do que os núcleos físicos.
 * **Necessidade da Sincronização (Mutexes):**
     * Testes sem mutexes, embora não tenham manifestado inconsistência na contagem de primos em algumas execuções (devido à natureza não determinística das condições de corrida e otimizações), são teórica e pragmaticamente cruciais para demonstrar que a proteção de variáveis compartilhadas é vital para a **correção e consistência** dos resultados em um ambiente multithread. Sem mutexes, o risco de resultados incorretos devido a condições de corrida é sempre presente.
