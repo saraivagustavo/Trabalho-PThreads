@@ -25,7 +25,7 @@ long contadorPrimos = 0;
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
 // Definições de tamanho dos macroblocos e número de threads
-#define NUM_THREADS                     // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ >>>>
+#define NUM_THREADS 6                   // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ >>>>
 #define MACROBLOCO_LINHAS 1             // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (LINHAS) >>>>
 #define MACROBLOCO_COLUNAS 1            // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (COLUNAS) >>>>
 
