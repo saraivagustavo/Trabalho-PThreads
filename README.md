@@ -31,7 +31,7 @@ Este projeto foi desenvolvido e testado no **Microsoft Visual Studio 2022** com 
 
 1.  **Clone o Repositório:**
     ```bash
-    git clone [https://docs.github.com/articles/referencing-and-citing-content](https://github.com/saraivagustavo/Trabalho-PThreads.git)
+    git clone https://github.com/saraivagustavo/Trabalho-PThreads.git
     cd [nome-do-seu-repositorio]
     ```
 2.  **Abra no Visual Studio:** Abra o arquivo de solução (`.sln`) do projeto no Visual Studio 2022.
