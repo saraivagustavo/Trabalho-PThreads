@@ -10,7 +10,7 @@ Este projeto tem como objetivo principal explorar os conceitos de programação 
 
 ## 🚀 Funcionalidades
 
-* **Geração de Matriz:** Criação dinâmica de uma matriz de grandes dimensões (`[20000]x[20000]`) preenchida com números naturais aleatórios (0 a 31999).
+* **Geração de Matriz:** Criação dinâmica de uma matriz de grandes dimensões (`20000 x 20000`) preenchida com números naturais aleatórios (0 a 31999).
 * **Busca Serial de Primos:** Implementação de um algoritmo sequencial para identificar e contar números primos na matriz, servindo como tempo de referência.
 * **Busca Paralela de Primos (PThreads):** Utilização de múltiplas threads para processar a matriz em "macroblocos", distribuindo a carga de trabalho.
 * **Sincronização com Mutexes:** Proteção de variáveis globais compartilhadas (`contadorPrimos`, `proximoMacrobloco`) para garantir a integridade dos dados e a correção do resultado em ambiente concorrente.
@@ -31,7 +31,7 @@ Este projeto foi desenvolvido e testado no **Microsoft Visual Studio 2022** com 
 
 1.  **Clone o Repositório:**
     ```bash
-    git clone [https://docs.github.com/articles/referencing-and-citing-content](https://docs.github.com/articles/referencing-and-citing-content)
+    git clone [https://docs.github.com/articles/referencing-and-citing-content](https://github.com/saraivagustavo/Trabalho-PThreads.git)
     cd [nome-do-seu-repositorio]
     ```
 2.  **Abra no Visual Studio:** Abra o arquivo de solução (`.sln`) do projeto no Visual Studio 2022.
