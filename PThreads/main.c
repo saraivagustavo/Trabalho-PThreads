@@ -19,15 +19,15 @@
 int** matriz;
 long contadorPrimos = 0;
 // Definições de tamanho da matriz
-#define MATRIZ_LINHAS 20000
-#define MATRIZ_COLUNAS 20000
+#define MATRIZ_LINHAS 20000             // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (LINHAS) >>>>
+#define MATRIZ_COLUNAS 20000            // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (COLUNAS) >>>>
 
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
 // Definições de tamanho dos macroblocos e número de threads
-#define NUM_THREADS 20
-#define MACROBLOCO_LINHAS 20000
-#define MACROBLOCO_COLUNAS 20000
+#define NUM_THREADS                     // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ >>>>
+#define MACROBLOCO_LINHAS 1             // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (LINHAS) >>>>
+#define MACROBLOCO_COLUNAS 1            // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (COLUNAS) >>>>
 
 
 // *******************************************************
@@ -252,6 +252,8 @@ void buscaParalela(int l, int c) {
     tempoParalela = (double)(fimParalela - inicioParalela) / CLOCKS_PER_SEC;
     printf("Tempo de execucao de forma paralela: %.3f segundos\n", tempoParalela);
 }
+
+
 // *******************************************************
 // ************* BUSCA PARALELA >>SEM<< MUTEX ************
 // *******************************************************
