@@ -51,7 +51,7 @@ Você pode ajustar as seguintes macros no arquivo `main.c` para testar diferente
 
 ## 📊 Análise de Desempenho (Baseado em Testes)
 
-Os testes foram conduzidos em [AMD Ryzen 7 5300X3D (8 Cores Físicos, 16 Threads Lógicas) e AMD Ryzen 5 5600 (6 Cores Físicos, 12 Threads Lógicas)], utilizando matrizes de até 30000 x 30000 elementos.
+Os testes foram conduzidos em **AMD Ryzen 7 5300X3D (8 Cores Físicos, 16 Threads Lógicas)** e **AMD Ryzen 5 5600 (6 Cores Físicos, 12 Threads Lógicas)**, utilizando matrizes de até 30000 x 30000 elementos.
 
 ### Principais Observações:
 
