@@ -19,15 +19,15 @@
 int** matriz;
 long contadorPrimos = 0;
 // Definições de tamanho da matriz
-#define MATRIZ_LINHAS 20000             // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (LINHAS) >>>>
-#define MATRIZ_COLUNAS 20000            // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (COLUNAS) >>>>
+#define MATRIZ_LINHAS 20000                 // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (LINHAS) >>>>
+#define MATRIZ_COLUNAS 20000                // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (COLUNAS) >>>>
 
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
 // Definições de tamanho dos macroblocos e número de threads
-#define NUM_THREADS 6                   // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ >>>>
-#define MACROBLOCO_LINHAS 1             // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (LINHAS) >>>>
-#define MACROBLOCO_COLUNAS 1            // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (COLUNAS) >>>>
+#define NUM_THREADS 6                       // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ >>>>
+#define MACROBLOCO_LINHAS  1000             // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (LINHAS) >>>>
+#define MACROBLOCO_COLUNAS 1000             // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (COLUNAS) >>>>
 
 
 // *******************************************************
@@ -228,7 +228,7 @@ void* percorrerCadaThread(void* arg) {
 void buscaParalela(int l, int c) {
     clock_t inicioParalela, fimParalela;
     double tempoParalela;
-    pthread_t threads[NUM_THREADS]; //vetor das threads
+    pthread_t threads[NUM_THREADS];
 
     inicioParalela = clock();
 
