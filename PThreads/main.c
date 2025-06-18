@@ -14,24 +14,24 @@
     trabalho PThreads - Sistemas Operacionais*/
 
 // *******************************************************
-// **************** VARI√ÅVEIS GLOBAIS ********************
+// **************** VARI¡VEIS GLOBAIS ********************
 // *******************************************************
 int** matriz;
 long contadorPrimos = 0;
-// Defini√ß√µes de tamanho da matriz
+// DefiniÁıes de tamanho da matriz
 #define MATRIZ_LINHAS 20000                 // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (LINHAS) >>>>
 #define MATRIZ_COLUNAS 20000                // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ (COLUNAS) >>>>
 
 int proximoMacrobloco = 0;
 pthread_mutex_t mutexContador;
-// Defini√ß√µes de tamanho dos macroblocos e n√∫mero de threads
+// DefiniÁıes de tamanho dos macroblocos e n˙mero de threads
 #define NUM_THREADS 6                       // <<<< MUDAR PARA O TAMANHO DESEJADO DA MATRIZ >>>>
 #define MACROBLOCO_LINHAS  1000             // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (LINHAS) >>>>
 #define MACROBLOCO_COLUNAS 1000             // <<<< MUDAR PARA O TAMANHO DESEJADO DO MACROBLOCO (COLUNAS) >>>>
 
 
 // *******************************************************
-// ******************* PROT√ìTIPOS ************************
+// ******************* PROT”TIPOS ************************
 // *******************************************************
 int ehPrimo(int n);
 void gerarMatriz(int l, int c);
@@ -39,7 +39,9 @@ void freeMatriz(int l);
 void buscaSerial(int l, int c);
 void buscaParalela(int l, int c);
 void* percorrerCadaThread(void* arg);
-/*fun√ß√µes sem mutex para comparar com a com mutex, descomentar se quiser*/
+void exibeMenu();
+
+/*funÁıes sem mutex para comparar com a com mutex, descomentar se quiser*/
 //void buscaParalelaSemMutex(int l, int c);
 //void* percorrerCadaThreadSemMutex(void* arg);
 
@@ -54,36 +56,99 @@ int main() {
     printf("Iniciando a geracao da matriz de %dx%d...\n", linhas, colunas);
     gerarMatriz(linhas, colunas);
 
-    //busca serial
-    printf("\n--- Teste busca serial ---\n");
-    buscaSerial(linhas, colunas);
-
-    //busca paralela com mutex
-	printf("\nMACROBLOCOS: %dx%d", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
-	printf("\nNUMERO THREADS: %d", NUM_THREADS);
-    printf("\n--- Teste paralela COM mutex ---\n");
     pthread_mutex_init(&mutexContador, NULL);
-    proximoMacrobloco = 0;
-    contadorPrimos = 0;
-    buscaParalela(linhas, colunas);
-    pthread_mutex_destroy(&mutexContador);
 
-	//busca paralela sem mutex pra ver o que acontece,  descomentar se quiser
-    /*printf("\nMACROBLOCOS: %dx%d", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
-    printf("\n--- Teste paralelo SEM mutex ---\n");
-    proximoMacrobloco = 0;
-    contadorPrimos = 0;
-    buscaParalelaSemMutex(linhas, colunas);*/
+    exibeMenu();
 
     freeMatriz(linhas);
+    pthread_mutex_destroy(&mutexContador);
     printf("Programa finalizado. beijos!\n");
 
     return 0;
 }
 
+// *******************************************************
+// **************** FUN«√O EXIBEMENU *********************
+// *******************************************************
+void exibeMenu() { //!!!!!
+    int escolha;
+    char confirmarValores;
+    int linhas = MATRIZ_LINHAS;
+    int colunas = MATRIZ_COLUNAS;
+
+    do {
+        printf("\n\n--- MENU DE BUSCA DE PRIMOS ---\n");
+        printf("1. Realizar Busca Serial\n");
+        printf("2. Realizar Busca Paralela (COM Mutex)\n");
+        // printf("3. Realizar Busca Paralela (SEM Mutex)\n);
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &escolha);
+        while (getchar() != '\n');
+        switch (escolha) {
+        case 1:
+            printf("\n--- Teste busca serial ---\n");
+            buscaSerial(linhas, colunas);
+            break;
+        case 2:
+            printf("\n--- Configuracao da Busca Paralela ---\n");
+            printf("Valores Atuais:\n");
+            printf("NUMERO DE THREADS: %d\n", NUM_THREADS);
+            printf("TAMANHO DO MACROBLOCO: %dx%d\n", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+            printf("Deseja usar estes valores? (s/n): ");
+            scanf(" %c", &confirmarValores);
+
+            if (confirmarValores == 's' || confirmarValores == 'S') {
+                printf("\nMACROBLOCOS: %dx%d\n", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+                printf("NUMERO THREADS: %d\n", NUM_THREADS);
+                printf("--- Teste paralela COM mutex ---\n");
+
+                proximoMacrobloco = 0;
+                contadorPrimos = 0;
+                buscaParalela(linhas, colunas);
+            }
+            else if (confirmarValores == 'n' || confirmarValores == 'N') {
+                printf("Altere os valores das threads e tamanho dos macroblocos direto no codigo com o valor desejado e recompile.\n");
+                exit(0);
+            }
+            else {
+                printf("Opcao invalida.\n");
+            }
+            break;
+            /*case 3: // OpÁ„o para busca paralela SEM mutex
+                printf("\n--- Configuracao da Busca Paralela (SEM Mutex) ---\n");
+                printf("Valores Atuais:\n");
+                printf("  Numero de Threads: %d\n", NUM_THREADS);
+                printf("  Tamanho do Macrobloco: %dx%d\n", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+                printf("Deseja usar estes valores? (s/n): ");
+                scanf(" %c", &confirmarValores);
+                if (confirmarValores == 's' || confirmarValores == 'S') {
+                    printf("\nMACROBLOCOS: %dx%d\n", MACROBLOCO_LINHAS, MACROBLOCO_COLUNAS);
+                    printf("NUMERO THREADS: %d\n", NUM_THREADS);
+                    printf("--- Teste paralelo SEM mutex ---\n");
+                    proximoMacrobloco = 0;
+                    contadorPrimos = 0;
+                    buscaParalelaSemMutex(linhas, colunas);
+                } else if (confirmarValores == 'n' || confirmarValores == 'N') {
+                    printf("Altere os valores das threads e tamanho dos macroblocos direto no codigo com o valor desejado e recompile.");
+                    exit(0);
+                } else {
+                    printf("Opcao invalida.\n");
+                }
+                break;*/
+        case 0:
+            printf("Saindo do programa.\n");
+            break;
+        default:
+            printf("Opcao invalida. Tente novamente.\n");
+        }
+    } while (escolha != 0);
+}
+
+
 
 // *******************************************************
-// **************** FUN√á√ÉO GERAMATRIZ ********************
+// **************** FUN«√O GERAMATRIZ ********************
 // *******************************************************
 void gerarMatriz(int l, int c) { //copiei de ED ajeitando pro jeito da apostila do Giraldeli
     matriz = (int**)malloc(l * sizeof(int*));
@@ -110,7 +175,7 @@ void gerarMatriz(int l, int c) { //copiei de ED ajeitando pro jeito da apostila 
 
 
 // *******************************************************
-// **************** FUN√á√ÉO FREEMATRIZ ********************
+// **************** FUN«√O FREEMATRIZ ********************
 // *******************************************************
 void freeMatriz(int l) { //copiei de ED
     if (matriz != NULL) {
@@ -127,7 +192,7 @@ void freeMatriz(int l) { //copiei de ED
 
 
 // *******************************************************
-// ***************** FUN√á√ÉO EHPRIMO **********************
+// ***************** FUN«√O EHPRIMO **********************
 // *******************************************************
 int ehPrimo(int n) {
     if (n <= 1) {
@@ -175,50 +240,50 @@ void buscaSerial(int l, int c) {
 // **************** BUSCA PARALELA ***********************
 // *******************************************************
 void* percorrerCadaThread(void* arg) {
-	long primoCadaThread = 0; //n√£o pode usar o contadorPrimos aqui, porque cada thread vai ter que contar os primos que ela encontrou e depois somar no contador global (l√° na regi√£o cr√≠tica embaixo)
-	int numMacroblocosLinha = (int)ceil((double)MATRIZ_LINHAS / MACROBLOCO_LINHAS); //garantir que o n√∫mero de linhas seja um m√∫ltiplo de MACROBLOCO_LINHAS
+	long primoCadaThread = 0; //n„o pode usar o contadorPrimos aqui, porque cada thread vai ter que contar os primos que ela encontrou e depois somar no contador global (l· na regi„o crÌtica embaixo)
+	int numMacroblocosLinha = (int)ceil((double)MATRIZ_LINHAS / MACROBLOCO_LINHAS); //garantir que o n˙mero de linhas seja um m˙ltiplo de MACROBLOCO_LINHAS
     int numMacroblocosColuna = (int)ceil((double)MATRIZ_COLUNAS / MACROBLOCO_COLUNAS); //mesma coisa para as colunas
     int totalMacroblocos = numMacroblocosLinha * numMacroblocosColuna;
 
     while (1) {
         int idMacrobloco;
-		//tem que travar a regi√£o cr√≠tica pq o proximoMacrobloco compartilha entre as threads
+		//tem que travar a regi„o crÌtica pq o proximoMacrobloco compartilha entre as threads
         pthread_mutex_lock(&mutexContador);
         idMacrobloco = proximoMacrobloco;
         proximoMacrobloco++;
         pthread_mutex_unlock(&mutexContador);
 
-        if (idMacrobloco >= totalMacroblocos) { //verifica se j√° percorreu todos os macroblocos que tinha na matriz
+        if (idMacrobloco >= totalMacroblocos) { //verifica se j· percorreu todos os macroblocos que tinha na matriz
             break;
         }
 
         int linhaMacrobloco = idMacrobloco / numMacroblocosLinha; //separa a matriz nos macroblocos olhando a linha
         int colunaMacrobloco = idMacrobloco % numMacroblocosColuna; //separa a matriz nos macroblocos olhando a coluna
 
-        int inicioLinha = linhaMacrobloco * MACROBLOCO_LINHAS; //calcula o in√≠cio da linha de cada microbloco, pra saber daonde come√ßa a percorrer
+        int inicioLinha = linhaMacrobloco * MACROBLOCO_LINHAS; //calcula o inÌcio da linha de cada microbloco, pra saber daonde comeÁa a percorrer
         int fimLinha = inicioLinha + MACROBLOCO_LINHAS;
-		if (fimLinha > MATRIZ_LINHAS) { //garante que n√£o ultrapassa o tamanho da matriz
+		if (fimLinha > MATRIZ_LINHAS) { //garante que n„o ultrapassa o tamanho da matriz
             fimLinha = MATRIZ_LINHAS; 
         }
 
 		int inicioColuna = colunaMacrobloco * MACROBLOCO_COLUNAS; //mesma coisa para as colunas
         int fimColuna = inicioColuna + MACROBLOCO_COLUNAS;
-		if (fimColuna > MATRIZ_COLUNAS) { //garante que n√£o ultrapassa o tamanho da matriz
+		if (fimColuna > MATRIZ_COLUNAS) { //garante que n„o ultrapassa o tamanho da matriz
             fimColuna = MATRIZ_COLUNAS;
         }
 
         primoCadaThread = 0;
-        for (int i = inicioLinha; i < fimLinha; i++) { //loop pra come√ßar a percorrer o macrobloco atual
+        for (int i = inicioLinha; i < fimLinha; i++) { //loop pra comeÁar a percorrer o macrobloco atual
             for (int j = inicioColuna; j < fimColuna; j++) {
-                if (ehPrimo(matriz[i][j])) { //aqui que verifica se o n√∫mero desse lugar de dentro do macrobloco √© primo ou n√£o
+                if (ehPrimo(matriz[i][j])) { //aqui que verifica se o n˙mero desse lugar de dentro do macrobloco È primo ou n„o
                     primoCadaThread++;
                 }
             }
         }
 
-        //como vai incrementar o contador global de n√∫meros primos, tem que travar tamb√©m, regi√£o cr√≠tica!!!!
+        //como vai incrementar o contador global de n˙meros primos, tem que travar tambÈm, regi„o crÌtica!!!!
         pthread_mutex_lock(&mutexContador);
-		contadorPrimos += primoCadaThread; //aqui que atualiza o contador global de n√∫meros primos encontrados em todas as threads
+		contadorPrimos += primoCadaThread; //aqui que atualiza o contador global de n˙meros primos encontrados em todas as threads
         pthread_mutex_unlock(&mutexContador);
     }
     return NULL;
@@ -233,14 +298,14 @@ void buscaParalela(int l, int c) {
     inicioParalela = clock();
 
     for (int i = 0; i < NUM_THREADS; i++) {
-		if (pthread_create(&threads[i], NULL, percorrerCadaThread, NULL) != 0) { //c√≥digo do gigi *adaptar pra v√°rias threads
+		if (pthread_create(&threads[i], NULL, percorrerCadaThread, NULL) != 0) { //cÛdigo do gigi *adaptar pra v·rias threads
             perror("Pthread_create falhou!");
             exit(1);
         }
     }
 
     for (int i = 0; i < NUM_THREADS; i++) {
-		if (pthread_join(threads[i], NULL) != 0) { //c√≥digo do gigi *adaptar pra v√°rias threads
+		if (pthread_join(threads[i], NULL) != 0) { //cÛdigo do gigi *adaptar pra v·rias threads
             perror("Pthread_join falhou!");
             exit(1);
         }
@@ -258,7 +323,7 @@ void buscaParalela(int l, int c) {
 // ************* BUSCA PARALELA >>SEM<< MUTEX ************
 // *******************************************************
 
-/*apenas a t√≠tulo de curiosidade de compara√ß√£o dos resultados, descomentar se quiser*/
+/*apenas a tÌtulo de curiosidade de comparaÁ„o dos resultados, descomentar se quiser*/
 
 //void* percorrerCadaThreadSemMutex(void* arg) {
 //    long primoCadaThread = 0;
